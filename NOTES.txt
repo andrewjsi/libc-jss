@@ -1,0 +1,12 @@
+ITT TARTOK
+----------
+
+szerver rész:
+
+netsocket_new();
+netsocket_listen("0.0.0.0", 5555);
+
+callback () {
+	case NETSOCKET_EVENT_
+
+}
