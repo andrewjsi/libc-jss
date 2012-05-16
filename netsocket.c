@@ -104,6 +104,12 @@ void netsocket_disconnect_withevent (netsocket_t *obj, char *reason) {
 	disconnect(obj, reason, 0); // 0 jelzi, hogy kérünk callback hívást
 }
 
+// ha ezt meghívjuk, akkor a bejövő kapcsolatoknál nem kérdezzük meg
+// a kliens IP címének nevét a DNS szervertől
+void netsocket_disable_lookup_on_accept (netsocket_t *obj) {
+	obj->disable_lookup_on_accept = 1;
+}
+
 static int sock_accept (netsocket_t *parent) {
 	netsocket_t *obj = netsocket_new(dummy_callback, NULL);
 
@@ -118,8 +124,9 @@ static int sock_accept (netsocket_t *parent) {
 		return -1;
 	}
 
-	// kliens IP cím lekérdezése
-	obj->hostent = gethostbyaddr(&obj->addr.sin_addr, sizeof(&obj->addr.sin_addr), AF_INET);
+	// kliens IP cím lekérdezése, ha nincs beállítva a "disable_lookup_on_accept"
+	if (!parent->disable_lookup_on_accept)
+		obj->hostent = gethostbyaddr(&obj->addr.sin_addr, sizeof(&obj->addr.sin_addr), AF_INET);
 
 	// ha nincs hostja az IP-nek, akkor a hostent NULL lesz
 	if (obj->hostent != NULL)
