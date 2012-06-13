@@ -135,6 +135,10 @@ static int sock_accept (netsocket_t *parent) {
 	// IP cím tárolása szöveges formátumban
 	obj->ip = inet_ntoa(obj->addr.sin_addr);
 
+	// ha nincs hostja az IP-nek, akkor az IP lesz a host
+	if (obj->host == NULL)
+		obj->host = obj->ip;
+
 	// Kliens portja
 	obj->port = ntohs(obj->addr.sin_port);
 
