@@ -1,4 +1,4 @@
-//~ #define CON_DEBUG
+#define CON_DEBUG
 
 #include "logger.h"
 #include <stdio.h>

@@ -1,0 +1,3 @@
+
+char *chomp (char *str);
+

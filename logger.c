@@ -8,6 +8,7 @@
 
 #include "logger.h"
 #include "debug.h"
+#include "misc.h"
 
 #include "utlist.h"
 
@@ -115,9 +116,7 @@ void _con_writef (enum con_callmode cm, char *file, int line, const char *functi
 			break;
 	}
 
-	// chomp
-	if (tmp[strlen(tmp) - 1] == 10)
-		tmp[strlen(tmp) - 1] = 0;
+	chomp(tmp);
 
 	// Kiiratás
 	printf("%s\n", tmp);

@@ -11,8 +11,8 @@ all: clean logger
 netsocket: $(OBJ)
 	$(CC) $(CFLAGS) -o $(BIN) $(OBJ) $(EXTOBJ) $(LIBS)
 
-logger: logger.o logger_test.o
-	$(CC) $(CFLAGS) -o logger logger.o logger_test.o
+logger: logger.o logger_test.o misc.o
+	$(CC) $(CFLAGS) -o logger logger.o logger_test.o misc.o
 
 doc:
 	doxygen
@@ -21,7 +21,7 @@ doc:
 	@echo ""
 
 clean:
-	rm -rf $(OBJ) $(BIN) logger logger.o logger_test.o core html/ latex/ man/
+	rm -rf $(OBJ) $(BIN) logger core *.o html/ latex/ man/
 
 # Függőségek
 #policy.o: server.h
