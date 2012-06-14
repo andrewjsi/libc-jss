@@ -1,8 +1,11 @@
+#ifndef LOGGER_H_LOADED
+#define LOGGER_H_LOADED
 void con_init ();
 void conft (const char *fmt, ...);
 void con_logfile (char *file);
 void con_timestamp_format (char *format);
 void _con_debugf (char *file, int line, const char *function, const char *fmt, ...);
+#endif
 
 // ha a DEBUG makró 1, akkor a debug() makrók életbe lépnek,
 // ellenkező esetben a kódba sem kerül bele :)
@@ -11,5 +14,4 @@ void _con_debugf (char *file, int line, const char *function, const char *fmt, .
 #else
 #define con_debug(...)
 #endif
-
 
