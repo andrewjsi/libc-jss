@@ -429,6 +429,9 @@ int netsocket_write (netsocket_t *obj, char *data, int length) {
  */
 netsocket_t *netsocket_new (void *callback, void *userdata) {
 	netsocket_t *obj = malloc(sizeof(*obj));
+	if (obj == NULL)
+		return NULL;
+	
 	//~ printf("netsocket object size = %d\n", sizeof(*obj));
 	bzero(obj, sizeof(*obj)); // mindent nullázunk
 
