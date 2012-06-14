@@ -14,7 +14,6 @@
 #define concat(dst, src) strncat((dst), (src), ((sizeof(dst)) - strlen(dst) - 1))
 #define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
 
-
 char *logfile = NULL;
 char *timestamp_format = "%a %H:%M:%S";
 
@@ -75,43 +74,6 @@ void con_init () {
 	return;
 }
 
-// formázott konzol üzenet kiírása időbélyeggel
-void conft (const char *fmt, ...) {
-	if (!initialised)
-		con_init();
-		
-	struct timeval tv;
-	struct tm *ptm; // thread safe?
-	char line[1024] = {0};
-	char tmp[1024];
-	
-	tv = get_time(NULL, &ptm, NULL); // idő, ami alapján a továbbiakban számolunk
-	strftime(tmp, sizeof(tmp), timestamp_format, ptm); // timestamp
-	concatf(line, "[%s", tmp);
-	get_time(&tv, &ptm, tmp); // elapsed lekérdezése TODO: ez borzalmas, átírni!!!
-	concatf(line, " %s] ", tmp);
-
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(tmp, sizeof(tmp), fmt, ap);
-	va_end(ap);
-	concat(line, tmp);
-
-	printf("S %s S\n", line);
-
-	if (logfile) {
-		FILE *f = fopen(logfile, "a");
-		if (f != NULL) {
-			// flock(fileno(f), LOCK_EX);
-			fprintf(f, "%s\n", line);
-			// flock(fileno(f), LOCK_UN);
-			fclose(f);
-		}
-	}
-
-	fflush(stdout);
-}
-
 void con_logfile (char *file) {
 	logfile = file;
 }
@@ -121,16 +83,53 @@ void con_timestamp_format (char *format) {
 }
 
 // gány, memóriazabáló függvény :)
-void _con_debugf (char *file, int line, const char *function, const char *fmt, ...) {
-	char tmp[1024] = {0};
-	char tmp2[1024];
+void _con_writef (enum con_callmode cm, char *file, int line, const char *function, const char *fmt, ...) {
+	if (!initialised)
+		con_init();
+
+	// botrányos deklarációk
+	char tmp[1024] = {0}; // ide kerül a végeredmény
+	char tmp2[1024]; // va_arg szöveges kimenete
+	char timestamp[64]; // timestamp
+	char elapsed[64]; // elapsed
 
 	va_list ap;
 	va_start(ap, fmt);
-	vsnprintf(tmp2, sizeof(tmp), fmt, ap);
+	vsnprintf(tmp2, sizeof(tmp2), fmt, ap);
 	va_end(ap);
 
-	concatf(tmp, "%s:%d %s: %s", file, line, function, tmp2);
+	// TODO: ezt az idő lekérdezős részt külön függvénybe kell rakni!
+	struct timeval tv;
+	struct tm *ptm;
+	tv = get_time(NULL, &ptm, NULL); // idő, ami alapján a továbbiakban számolunk
+	strftime(timestamp, sizeof(timestamp), timestamp_format, ptm); // szöveges timestamp
+	get_time(&tv, &ptm, elapsed); // elapsed lekérdezése TODO: ez borzalmas, átírni!!!
+
+	switch (cm) {
+		case CON_CALLMODE_CONFT:
+			concatf(tmp, "%s %s", timestamp, tmp2);
+			break;
+
+		case CON_CALLMODE_DEBUG:
+			concatf(tmp, "%s /%s/ [%s:%d %s]: %s", timestamp, elapsed, file, line, function, tmp2);
+			break;
+	}
+
+	// chomp
+	if (tmp[strlen(tmp) - 1] == 10)
+		tmp[strlen(tmp) - 1] = 0;
+
+	// Kiiratás
 	printf("%s\n", tmp);
+	fflush(stdout);
+
+	if (logfile) {
+		FILE *f = fopen(logfile, "a");
+		if (f != NULL) {
+			fprintf(f, "%s\n", tmp);
+			fclose(f);
+		}
+	}
+
 }
 
