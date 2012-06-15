@@ -46,9 +46,10 @@ typedef struct netsocket_t {
 	int destroy_request;
 	int in_callback;
 	int disable_lookup_on_accept;
+	struct ev_loop *loop;
 } netsocket_t;
 
-netsocket_t *netsocket_new (void *callback, void *userdata);
+netsocket_t *netsocket_new (void *callback, void *userdata, struct ev_loop *loop);
 void netsocket_destroy (netsocket_t *obj);
 int netsocket_connect (netsocket_t *obj);
 int netsocket_listen (netsocket_t *obj);

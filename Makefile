@@ -3,10 +3,9 @@ CC = gcc
 CFLAGS = -Wall
 LIBS = -lcrypto -lev
 OBJ=pipe.o netsocket.o
-EXTOBJ=udns-0.1/libudns.a
 BIN=pipe
 
-all: clean logger
+all: clean logger netsocket
 
 netsocket: $(OBJ)
 	$(CC) $(CFLAGS) -o $(BIN) $(OBJ) $(EXTOBJ) $(LIBS)

@@ -104,7 +104,7 @@ static void scallback (netsocket_t *netsocket, int event) {
 			//~ netsocket_write(netsocket, msg, strlen(msg));
 			
 			netsocket_t *newnetsocket;
-			newnetsocket = netsocket_new(ccallback, netsocket);
+			newnetsocket = netsocket_new(ccallback, netsocket, NULL);
 			newnetsocket->host = host;
 			newnetsocket->port = port;
 			netsocket->userdata = newnetsocket;
@@ -170,7 +170,7 @@ int main (int argc, char **argv) {
 	//~ netsocket_connect(netsocket, "pingoly", 5555);
 	//~ netsocket_destroy(netsocket);
 
-	snetsocket = netsocket_new(scallback, "ez itt a szerver");
+	snetsocket = netsocket_new(scallback, "ez itt a szerver", EV_DEFAULT);
 	snetsocket->lhost = lhost;
 	snetsocket->lport = lport;
 	if (netsocket_listen(snetsocket)) {

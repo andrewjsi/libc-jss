@@ -45,9 +45,9 @@ static void dummy_callback (netsocket_t *obj, int event) {
 static void sock_close (netsocket_t *obj) {
 	if (!obj->sock)
 		return;
-	ev_io_stop(EV_DEFAULT, &obj->w_in);
-	ev_io_stop(EV_DEFAULT, &obj->w_out);
-	ev_timer_stop(EV_DEFAULT, &obj->w_connect_timeout);
+	ev_io_stop(obj->loop, &obj->w_in);
+	ev_io_stop(obj->loop, &obj->w_out);
+	ev_timer_stop(obj->loop, &obj->w_connect_timeout);
 	close(obj->sock);
 	obj->sock = 0;
 }
@@ -111,7 +111,7 @@ void netsocket_disable_lookup_on_accept (netsocket_t *obj) {
 }
 
 static int sock_accept (netsocket_t *parent) {
-	netsocket_t *obj = netsocket_new(dummy_callback, NULL);
+	netsocket_t *obj = netsocket_new(dummy_callback, NULL, parent->loop);
 
 	obj->mode = NETSOCKET_CLIENT;
 	obj->direction = NETSOCKET_IN;
@@ -145,8 +145,8 @@ static int sock_accept (netsocket_t *parent) {
 	ev_io_set(&obj->w_in, obj->sock, EV_READ);
 	ev_io_set(&obj->w_out, obj->sock, EV_WRITE);
 
-	ev_io_start(EV_DEFAULT, &obj->w_in);
-	ev_io_start(EV_DEFAULT, &obj->w_out);
+	ev_io_start(obj->loop, &obj->w_in);
+	ev_io_start(obj->loop, &obj->w_out);
 
 	obj->parent = parent;
 	obj->callback = parent->callback;
@@ -217,7 +217,7 @@ static void w_out_cb (EV_P_ ev_io *w, int revents) {
 		disconnect(obj, strerror(obj->err), 0);
 	} else {
 		obj->connected = 1;
-		ev_timer_stop(EV_DEFAULT, &obj->w_connect_timeout);
+		ev_timer_stop(obj->loop, &obj->w_connect_timeout);
 		invoke_callback(obj, NETSOCKET_EVENT_CONNECT);
 	}
 }
@@ -262,9 +262,9 @@ int netsocket_connect (netsocket_t *obj) {
 	ev_io_set(&obj->w_out, obj->sock, EV_WRITE);
 	ev_timer_set(&obj->w_connect_timeout, (float)obj->connect_timeout / 1000, 0);
 
-	ev_io_start(EV_DEFAULT, &obj->w_in);
-	ev_io_start(EV_DEFAULT, &obj->w_out);
-	ev_timer_start(EV_DEFAULT, &obj->w_connect_timeout);
+	ev_io_start(obj->loop, &obj->w_in);
+	ev_io_start(obj->loop, &obj->w_out);
+	ev_timer_start(obj->loop, &obj->w_connect_timeout);
 
 	// socket non-block
 	fcntl(obj->sock, F_SETFL, fcntl(obj->sock, F_GETFL, 0) | O_NONBLOCK);
@@ -352,8 +352,8 @@ int netsocket_listen (netsocket_t *obj) {
 	ev_io_set(&obj->w_out, obj->sock, EV_WRITE);
 	//~ ev_timer_set(&obj->w_connect_timeout, (float)obj->connect_timeout / 1000, 0);
 
-	ev_io_start(EV_DEFAULT, &obj->w_in);
-	ev_io_start(EV_DEFAULT, &obj->w_out);
+	ev_io_start(obj->loop, &obj->w_in);
+	ev_io_start(obj->loop, &obj->w_out);
 	//~ ev_timer_start(EV_DEFAULT, &obj->w_connect_timeout);
 
 	return 0;
@@ -421,19 +421,27 @@ int netsocket_write (netsocket_t *obj, char *data, int length) {
  * @brief Create a new netsocket object
  * @param callback callback function pointer
  * @param userdata user defined pointer
+ * @param loop event loop
  * @returns a new netsocket object
  * 
  * Create and return a malloc'ed netsocket object. Save callback and userdata
  * in the netsocket structure. Callback will be called when an event occur. Userdata
- * is an user defined pointer. 
+ * is an user defined pointer. If the optional loop parameter is given, then tell
+ * the netsocket to use this event loop for async operations. This is useful in
+ * multithreading environment. If the loop is NULL, then the default event loop
+ * will be used. 
  */
-netsocket_t *netsocket_new (void *callback, void *userdata) {
+netsocket_t *netsocket_new (void *callback, void *userdata, struct ev_loop *loop) {
 	netsocket_t *obj = malloc(sizeof(*obj));
 	if (obj == NULL)
 		return NULL;
 	
 	//~ printf("netsocket object size = %d\n", sizeof(*obj));
 	bzero(obj, sizeof(*obj)); // mindent nullázunk
+
+	// ha meg van adva a loop paraméter, akkor azt használjuk eseménykezelőnek
+	// ellenkező esetben az alapértelmezett eseménykezelőt
+	obj->loop = (loop != NULL) ? loop : ev_default_loop(0);
 
 	// default értékek
 	obj->connect_timeout = 5000; // 5000 millisec
