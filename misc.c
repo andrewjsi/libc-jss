@@ -1,4 +1,4 @@
-/* Általános függvények */
+/* altalanos fuggvenyek */
 
 #include <stdlib.h>
 #include <string.h>
