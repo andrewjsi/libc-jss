@@ -54,14 +54,7 @@ static struct timeval get_time (struct timeval *tv, struct tm **ptm, char *elaps
 
 	if (elapsed) {
 		long int delta = ((mytv.tv_sec * 1000000) + mytv.tv_usec) - ((first_time.tv_sec * 1000000) + first_time.tv_usec);
-		char nowstr[16] = {0};
-		elapsed[1] = 0;
-		memset(elapsed, 0, sizeof(elapsed)); // enélkül az strncpy szar helyre ír
-		// delta -> elapased atalakitas. mikroszekundumokbol ssss.mmmu formatum
-		snprintf(nowstr, 16, "%14.14ld\n", delta);
-		strncpy(elapsed, nowstr + 4, 4);
-		strncat(elapsed, ".", 1);
-		strncat(elapsed, nowstr + 8, 4);
+		snprintf(elapsed, 8, "%3.3f", (float)delta / 1000000);
 	}
 
 	return mytv;
