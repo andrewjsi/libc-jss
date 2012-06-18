@@ -11,9 +11,10 @@
 #include "misc.h"
 
 #include "utlist.h"
+#include "misc.h"
 
-#define concat(dst, src) strncat((dst), (src), ((sizeof(dst)) - strlen(dst) - 1))
-#define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
+//~ #define concat(dst, src) strncat((dst), (src), ((sizeof(dst)) - strlen(dst) - 1))
+//~ #define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
 
 char *logfile = NULL;
 char *timestamp_format = "%a %H:%M:%S";
