@@ -484,11 +484,11 @@ void netsocket_destroy (netsocket_t *obj) {
 
 // formázott konzol üzenet kiírása időbélyeggel
 int netsocket_printf (netsocket_t *obj, const char *fmt, ...) {
-	char tmp[8192]; // TODO not thread-safe! és pontatlan is!
+	char tmp[8192];
 	va_list ap;
 
 	va_start(ap, fmt);
-	vsnprintf(tmp, sizeof(tmp), fmt, ap);
+	vsnprintf(tmp, sizeof(tmp) - 1, fmt, ap);
 	va_end(ap);
 
 	return netsocket_write(obj, tmp, strlen(tmp));
