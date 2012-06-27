@@ -1,2 +1,3 @@
 Ring Bufferrel megoldhato a mem logging?
+http://en.wikipedia.org/wiki/Circular_buffer
 
