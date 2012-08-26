@@ -1,3 +1,6 @@
+#ifndef NETSOCKET_H_INCLUDED
+#define NETSOCKET_H_INCLUDED
+
 #include <netdb.h>
 #include <ev.h>
 
@@ -59,4 +62,4 @@ int netsocket_write (netsocket_t *obj, char *data, int length);
 int netsocket_printf (netsocket_t *obj, const char *fmt, ...);
 void netsocket_disable_lookup_on_accept (netsocket_t *obj);
 
-
+#endif // #ifndef NETSOCKET_H_INCLUDED
