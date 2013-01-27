@@ -16,8 +16,10 @@
 //~ #define concat(dst, src) strncat((dst), (src), ((sizeof(dst)) - strlen(dst) - 1))
 //~ #define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
 
-char *logfile = NULL;
-char *timestamp_format = "%a %H:%M:%S";
+static char *logfile = NULL;
+static char logfile_buf[128];
+static char *timestamp_format = "%a %H:%M:%S";
+static char timestamp_format_buf[128];
 
 static int initialised = 0;
 struct timeval first_time = {0, 0};
@@ -69,12 +71,22 @@ void con_init () {
 	return;
 }
 
-void con_logfile (char *file) {
-	logfile = file;
+void con_logfile (const char *file) {
+	if (file == NULL) {
+		logfile = NULL;
+		return;
+	}
+	strncpy(logfile_buf, file, sizeof(logfile_buf));
+	logfile = logfile_buf;	
 }
 
-void con_timestamp_format (char *format) {
-	timestamp_format = format;
+void con_timestamp_format (const char *format) {
+	if (format == NULL) {
+		timestamp_format = NULL;
+		return;
+	}
+	strncpy(timestamp_format_buf, format, sizeof(timestamp_format_buf));
+	timestamp_format = timestamp_format_buf;
 }
 
 // gány, memóriazabáló függvény :)

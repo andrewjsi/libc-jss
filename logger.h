@@ -7,8 +7,8 @@ enum con_callmode {
 #define LOGGER_H_LOADED
 void con_init ();
 //~ void conft (const char *fmt, ...);
-void con_logfile (char *file);
-void con_timestamp_format (char *format);
+void con_logfile (const char *file);
+void con_timestamp_format (const char *format);
 void _con_writef (enum con_callmode cm, char *file, int line, const char *function, const char *fmt, ...);
 #endif
 
