@@ -18,6 +18,13 @@
 
 static char *logfile = NULL;
 static char logfile_buf[128];
+
+/* TODO: rendbe tenni ezt a marhaságot valami kultúrált megoldással úgy, 
+hogy a hívó függvény által átadott stringet lemásoljuk és helyben a 
+másolatot kezeljük. Azért, hogy a hívó utána a saját mutatójával azt 
+csinálhasson, amit csak akar. Kezelni a NULL-t, a default értékeket és 
+valami kultúrált köntöst adni neki, ne ezt a három változós izét. */
+static char *timestamp_format_default = "%a %H:%M:%S";
 static char *timestamp_format = "%a %H:%M:%S";
 static char timestamp_format_buf[128];
 
@@ -82,7 +89,7 @@ void con_logfile (const char *file) {
 
 void con_timestamp_format (const char *format) {
 	if (format == NULL) {
-		timestamp_format = NULL;
+		timestamp_format = timestamp_format_default;
 		return;
 	}
 	strncpy(timestamp_format_buf, format, sizeof(timestamp_format_buf));
