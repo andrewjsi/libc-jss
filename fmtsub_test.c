@@ -5,14 +5,45 @@
 
 #include "misc.h"
 
+/*
+const char *args[][2] = {
+    {"%n", "2463434"},
+    {"%v", "0.9.6-rc2"},
+    {"%n", "Jekusa Poromeck"},
+    {0}
+}; 
+*/
+//~ void prob (const char *args[][2]) {
+    //~ int i;
+    //~ for (i = 0; afmt[i][0] != 0; i++) {
+        //~ printf("hello %s --- %s\n", afmt[i][0], afmt[i][1]);
+        //~ 
+    //~ }
+//~ }
+
 int main (int argc, char **argv) {
     char buf2[32];
     char buf[64];
     
     char *pattern = argv[1];
-    char *arg1 = argv[2];
 
-    fmtsub(buf, sizeof(buf), pattern, arg1);
+    char proba[64];
+    strcpy(proba, "PROBA");
+
+    const char *args[][2] = {
+        {"%n", NULL},
+        {"", "URES_STRING"},
+        {"%v", "0.9.6-rc2"},
+        {"%a", "Jekusa Poromeck"},
+        {"%p", proba},
+        {"Windows", "Linux"},
+        {"\\%", "%"},
+        {0}
+    };
+
+    if (fmtsub(buf, sizeof(buf), pattern, args)) {
+        printf("fmtsub() hibaval tert vissza!\n");
+    }
 
     printf("%d s %s s\n", (int)strlen(buf), buf);
 

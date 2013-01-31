@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-//~ #include "debug.h"
+#include "debug.h"
 
 char *chomp (char *str) {
     if (str == NULL)
@@ -15,50 +15,86 @@ char *chomp (char *str) {
     return str;
 }
 
-/* formázott dialstring készítés. Formátum:
- *   %n -- hívószám behelyettesítése
- *   \% -- % jel beírása
- */
-int fmtsub (char *dest, size_t size, const char *pattern, const char *arg1) {
-    char buf[256];
+/*
+fmtsub - mintából, változó-érték párokból és készít stringet behelyettesítéssel
 
-    if (arg1 == NULL)
+paraméterek:
+    dest        ebbe a stringbe menti el az eredményt
+    size        dest mérete
+    pattern     minta
+    args        változó-érték táblázat, nullával lezárva
+
+visszatérési érték:
+    0           sikerült a behelyettesítés
+    -1          valamelyik mutató == NULL vagy a size == 0
+
+A táblázat megadása:
+
+const char *args[][2] = {
+    {"%n", "2463434"},
+    {"%v", "0.9.6-rc2"},
+    {"version", "Linux 2.6.32"},
+    {"boo", "baa"},
+    {0}}; */
+int fmtsub (char *dest, size_t size, const char *pattern, const char *args[][2]) {
+    char buf[4096];
+
+    if (dest == NULL || pattern == NULL || args == NULL || size == 0)
         return -1;
 
-    if (pattern == NULL || strlen(pattern) == 0)
-        return -1;
+    // ha a pattern üres string, akkor üres stringet adunk vissza
+    if (strlen(pattern) == 0) {
+        strcpy(dest, "");
+        return 0;
+    }
 
-
-    int i, pos;
-    int len = strlen(pattern);
+    int pospat, posbuf, a;
+    int lenpat = strlen(pattern);
     buf[0] = '\0';
-    for (i = 0, pos = 0; i < len && pos < sizeof(buf) - 1; i++, pos++) {
-        const char *sub = &pattern[i];
+    // byteonként végigmegyünk a pattern stringen
+    for (pospat = 0, posbuf = 0; pospat < lenpat && posbuf < sizeof(buf) - 1;) {
+        const char *subpat = &pattern[pospat];
+        int match = 0;
 
-        /// %n
-        if (!strncmp(sub, "%n", 2)) {
-            strncat(buf, arg1, sizeof(buf) - pos - 1);
-            pos += (strlen(arg1) - 1);
-            i++;
+        // végigmegyünk az args táblázaton
+        for (a = 0; args[a][0] != 0; a++) {
+            const char *var = args[a][0]; // "%n"
+            const char *exp = args[a][1]; // "2463434"
 
-            // védelem, különben a pos túlszaladhat és a lenti buf[pos] = '\0' segfaultol
-            if (pos >= sizeof(buf) - 1)
-                pos = sizeof(buf) - 1;
+            // ha a változónév megtalálható a pattern jelenlegi pozíciójánál
+            if (strlen(var) != 0 && !strncmp(subpat, var, strlen(var))) {
+                if (exp  != NULL) {
+                    // bemásoljuk a változó értékét a bufferbe
+                    strncat(buf, exp, sizeof(buf) - posbuf - 1);
+                    posbuf += strlen(exp);
+                }
 
+                /* ezen a ponton a posbuf nagyobb lehet, mint a buf, ami 
+                igen kellemetlenül érintené a lenti buf[posbuf] = '\0' 
+                értékadást, ezért a posbuf pozícionálót beállítjuk a buf 
+                utolsó byte-jára. ide fog kerülni a NULL. */
+                if (posbuf >= sizeof(buf) - 1)
+                    posbuf = sizeof(buf) - 1;
 
-        /// \% (backslash + percentage)
-        } else if (!strncmp(sub, "\\%", 2)) { // az egyik \ joker, tehát a string \%
-            strncat(buf, "%", sizeof(buf) - pos - 1);
-            i++;
+                // pattern pozícióját a változónév utáni karakterre állítjuk
+                pospat += strlen(var);
 
-        /// minden egyéb
-        } else {
-            buf[pos] = pattern[i];
-            buf[pos+1] = '\0';
+                // kihagyjuk a lenti if-et
+                match = 1;
+                break;
+            }
+        }
+
+        // 1 bájt másolása pattern-ből buf-ba
+        if (!match) {
+            buf[posbuf] = pattern[pospat];
+            buf[posbuf+1] = '\0';
+            pospat++;
+            posbuf++;
         }
     }
 
-    buf[pos] = '\0'; // lezáró NULL
+    buf[posbuf] = '\0'; // lezáró NULL
     strncpy(dest, buf, size - 1);
     return 0;
 }
