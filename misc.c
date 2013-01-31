@@ -99,3 +99,19 @@ int fmtsub (char *dest, size_t size, const char *pattern, const char *args[][2])
     return 0;
 }
 
+// http://en.wikipedia.org/wiki/ROT13
+// paraméter az a string, amit módosítani kell
+// visszatérés ugyan az, mint a paraméter kompatibilitási izé miatt
+char *encode_rot13 (char *s) {
+    if (s == NULL)
+        return NULL;
+
+    int i;
+    for (i = 0; s[i]; i++) {
+        if (s[i] >= 'a' && s[i] <= 'm') { s[i] += 13; continue; }
+        if (s[i] >= 'A' && s[i] <= 'M') { s[i] += 13; continue; }
+        if (s[i] >= 'n' && s[i] <= 'z') { s[i] -= 13; continue; }
+        if (s[i] >= 'N' && s[i] <= 'Z') { s[i] -= 13; continue; }
+    }
+    return s;
+}
