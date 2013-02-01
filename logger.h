@@ -1,5 +1,15 @@
+/*
+	conf(...)		kiírás időbélyeg nélkül, újsorral
+	confn(...)		kiírás időbélyeg nélkül, újsor nélkül
+	conft(...)		kiírás időbélyeggel, újsorral
+	conftn(...)		kiírás időbélyeggel, újsor nélkül
+*/
+
 enum con_callmode {
+	CON_CALLMODE_CONF,
+	CON_CALLMODE_CONFN,
 	CON_CALLMODE_CONFT,
+	CON_CALLMODE_CONFTN,
 	CON_CALLMODE_DEBUG,
 };
 
@@ -21,4 +31,7 @@ void _con_writef (enum con_callmode cm, char *file, int line, const char *functi
 #define con_debug(...)
 #endif
 
+#define conf(...) _con_writef(CON_CALLMODE_CONF, NULL, 0, NULL, __VA_ARGS__)
+#define confn(...) _con_writef(CON_CALLMODE_CONFN, NULL, 0, NULL, __VA_ARGS__)
 #define conft(...) _con_writef(CON_CALLMODE_CONFT, NULL, 0, NULL, __VA_ARGS__)
+#define conftn(...) _con_writef(CON_CALLMODE_CONFTN, NULL, 0, NULL, __VA_ARGS__)

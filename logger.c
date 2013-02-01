@@ -121,7 +121,13 @@ void _con_writef (enum con_callmode cm, char *file, int line, const char *functi
 
 	switch (cm) {
 		case CON_CALLMODE_CONFT:
+		case CON_CALLMODE_CONFTN:
 			concatf(tmp, "%s %s", timestamp, tmp2);
+			break;
+
+		case CON_CALLMODE_CONF:
+		case CON_CALLMODE_CONFN:
+			strncpy(tmp, tmp2, sizeof(tmp) - 1);
 			break;
 
 		case CON_CALLMODE_DEBUG:
@@ -132,13 +138,17 @@ void _con_writef (enum con_callmode cm, char *file, int line, const char *functi
 	chomp(tmp);
 
 	// Kiiratás
-	printf("%s\n", tmp);
+	printf("%s", tmp);
+	if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
+		printf("\n");
 	fflush(stdout);
 
 	if (logfile) {
 		FILE *f = fopen(logfile, "a");
 		if (f != NULL) {
-			fprintf(f, "%s\n", tmp);
+			fprintf(f, "%s", tmp);
+			if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
+				fprintf(f, "\n");
 			fclose(f);
 		}
 	}
