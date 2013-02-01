@@ -1,1 +1,4 @@
 *.o
+fmtsub_test
+logger
+pipe
