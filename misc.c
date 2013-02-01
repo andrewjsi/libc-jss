@@ -38,7 +38,7 @@ const char *args[][2] = {
     {0}}; */
 int fmtsub (char *dest, size_t size, const char *pattern, const char *args[][2]) {
     char buf[4096];
-
+//~ debs(dest); debi(size); debs(pattern); debi(args);
     if (dest == NULL || pattern == NULL || args == NULL || size == 0)
         return -1;
 
