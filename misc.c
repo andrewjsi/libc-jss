@@ -6,13 +6,19 @@
 
 #include "debug.h"
 
-char *chomp (char *str) {
-    if (str == NULL)
+char *chomp (char *s) {
+    if (s == NULL)
         return NULL;
-    size_t len = strlen(str);
-    if (str[len - 1] == '\n')
-        str[len - 1] = '\0';
-    return str;
+    size_t len = strlen(s);
+
+    int n;
+    for (n = len - 1; n >= 0; n--) {
+        if (s[n] == '\n' || s[n] == '\r')
+            s[n] = '\0';
+        else
+            return s;
+    }
+    return s;
 }
 
 /*
