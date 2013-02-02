@@ -5,3 +5,13 @@ char *chomp (char *str);
 #define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
 int fmtsub (char *dest, size_t size, const char *pattern, const char *args[][2]);
 char *encode_rot13 (char *s);
+
+char *_trim (char *s, int trim_from_left, int trim_from_right);
+#define trim(s) _trim(s, 1, 1)
+#define ltrim(s) _trim(s, 1, 0)
+#define rtrim(s) _trim(s, 0, 1)
+
+// Nincs még doksi, ezért ide írom...
+// A chomp, trim, encode_rot13 függvények használhatok beágyazva is, tehát:
+// char buf[64];
+// encode_rot13(trim(chomp(buf)));

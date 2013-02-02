@@ -121,3 +121,41 @@ char *encode_rot13 (char *s) {
     }
     return s;
 }
+
+// szóközöket és tabokat vág le a megadott string bal és/vagy jobb oldaláról
+// trim  - mindkét oldalról vág
+// ltrim - bal oldalról vág
+// rtrim - jobb oldalról vág
+char *_trim (char *s, int trim_from_left, int trim_from_right) {
+    if (s == NULL)
+        return NULL;
+
+    int n, i;
+    size_t len = strlen(s);
+
+    if (trim_from_right) {
+        for (n = len - 1; n >= 0; n--) {
+            if (s[n] == 32 || s[n] == '\t') {
+                s[n] = '\0';
+                len--;
+            } else {
+                break;
+            }
+        }
+    }
+
+    if (trim_from_left) {
+        for (n = 0; n < len; n++)
+            if (s[n] != 32 && s[n] != '\t')
+                break;
+
+        if (n > 0) {
+            for (i = n; i < len; i++)
+                s[i-n] = s[i];
+
+            for (i = len - n; i < len; i++)
+                s[i] = '\0';
+        }
+    }
+    return s;
+}
