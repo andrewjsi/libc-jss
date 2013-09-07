@@ -15,3 +15,6 @@ char *_trim (char *s, int trim_from_left, int trim_from_right);
 // A chomp, trim, encode_rot13 függvények használhatok beágyazva is, tehát:
 // char buf[64];
 // encode_rot13(trim(chomp(buf)));
+
+// visszatér egy pointer tömbbel, ami az elemekre mutat, a tömböt 0 pointerrel zárja. A függvény felülírja a buffer stringben lévő delimetereket. Magyarul módosítja a kapott stringet, ami nem biztos, hogy jó dolog. Pl. char *x = "hello" változóknál segfault.
+char **split (char *buffer, int delimeter);

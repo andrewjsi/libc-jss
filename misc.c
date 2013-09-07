@@ -159,3 +159,43 @@ char *_trim (char *s, int trim_from_left, int trim_from_right) {
     }
     return s;
 }
+
+/* megszámlálja a <delimeter> elemeket */
+static int split_get_size (char *buffer, int delimeter) {
+    int c = 0, i = 0;
+    if (buffer[ 0 ] == 0)
+        return 0;
+    while (buffer[i] != 0) {
+        if (buffer[i] == delimeter)
+            c++;
+        i++;
+    }
+    /* egyet hozzáadok, mert a "hello" is értéknek számít, hiába nincs benne ';' */
+    return c + 1;
+}
+
+/* visszatér egy pointer tömbbel, ami az elemekre mutat, a tömböt 0 pointerrel zárja */
+char **split (char *buffer, int delimeter) {
+    int size = split_get_size(buffer, delimeter);
+    /* helyfoglalás a pointer tömbnek */
+    char **res = (char **)malloc(sizeof(char *) * (size + 1));
+    int i=0;
+    int p=0;
+    while (buffer[i] != 0) {
+        /* a sor elejét eltárolom */
+        res[p++] = buffer + i;
+        /* a sor végét megkeresem */
+        do {
+            i++;
+        } while (buffer[i] != 0 && buffer[i] != delimeter);
+        /* felülírjuk a ';'-t 0-val */
+        if (buffer[i] != 0) {
+            buffer[i] = 0;
+            i++;
+        }
+    }
+
+    /* null pointerrel zárjuk */
+    res[p] = 0;
+    return res;
+}
