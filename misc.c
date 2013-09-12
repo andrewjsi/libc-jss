@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <arpa/inet.h>  // inet_pton() függvény
 
 #include "debug.h"
 
@@ -198,4 +199,12 @@ char **split (char *buffer, int delimeter) {
     /* null pointerrel zárjuk */
     res[p] = 0;
     return res;
+}
+
+// 1-et ad vissza, ha érvényes a kapott IP cím
+// 0-át ha nem
+int is_valid_ip (char *ip) {
+    struct sockaddr_in sa;
+    int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
+    return result != 0;
 }

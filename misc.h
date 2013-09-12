@@ -18,3 +18,7 @@ char *_trim (char *s, int trim_from_left, int trim_from_right);
 
 // visszatér egy pointer tömbbel, ami az elemekre mutat, a tömböt 0 pointerrel zárja. A függvény felülírja a buffer stringben lévő delimetereket. Magyarul módosítja a kapott stringet, ami nem biztos, hogy jó dolog. Pl. char *x = "hello" változóknál segfault.
 char **split (char *buffer, int delimeter);
+
+// 1-et ad vissza, ha érvényes a kapott IP cím
+// 0-át ha nem
+int is_valid_ip(char *ip);
