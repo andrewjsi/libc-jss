@@ -105,8 +105,8 @@ static void scallback (netsocket_t *netsocket, int event) {
 			
 			netsocket_t *newnetsocket;
 			newnetsocket = netsocket_new(ccallback, netsocket, NULL);
-			newnetsocket->host = host;
-			newnetsocket->port = port;
+            netsocket_host(newnetsocket, host);
+            netsocket_port(newnetsocket, port);
 			netsocket->userdata = newnetsocket;
 			netsocket_connect(netsocket->userdata);
 			//~ netsocket_disconnect(netsocket, "megszakadsz");
@@ -171,8 +171,8 @@ int main (int argc, char **argv) {
 	//~ netsocket_destroy(netsocket);
 
 	snetsocket = netsocket_new(scallback, "ez itt a szerver", EV_DEFAULT);
-	snetsocket->lhost = lhost;
-	snetsocket->lport = lport;
+    netsocket_lhost(snetsocket, lhost);
+    netsocket_lport(snetsocket, lport);
 	if (netsocket_listen(snetsocket)) {
 		perror("netsocket_listen");
 		exit(255);

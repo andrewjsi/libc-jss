@@ -68,7 +68,8 @@ static void invoke_callback (netsocket_t *obj, int event) {
 
 static void disconnect (netsocket_t *obj, char *reason, int ignore_callback) {
 	sock_close(obj);
-	obj->disconnect_reason = reason;
+    if (reason != NULL)
+        strncpy(obj->disconnect_reason, reason, sizeof(obj->disconnect_reason) - 1);
 
 	if (!ignore_callback)
 		invoke_callback(obj, NETSOCKET_EVENT_DISCONNECT);
@@ -130,14 +131,14 @@ static int sock_accept (netsocket_t *parent) {
 
 	// ha nincs hostja az IP-nek, akkor a hostent NULL lesz
 	if (obj->hostent != NULL)
-		obj->host = obj->hostent->h_name;
+        strncpy(obj->host, obj->hostent->h_name, sizeof(obj->host) - 1);
 
 	// IP cím tárolása szöveges formátumban
-	obj->ip = inet_ntoa(obj->addr.sin_addr);
+	strncpy(obj->ip, inet_ntoa(obj->addr.sin_addr), sizeof(obj->ip) - 1);
 
 	// ha nincs hostja az IP-nek, akkor az IP lesz a host
-	if (obj->host == NULL)
-		obj->host = obj->ip;
+	if (!strlen(obj->host))
+        strncpy(obj->host, obj->ip, sizeof(obj->host) - 1);
 
 	// Kliens portja
 	obj->port = ntohs(obj->addr.sin_port);
@@ -151,7 +152,7 @@ static int sock_accept (netsocket_t *parent) {
 	obj->parent = parent;
 	obj->callback = parent->callback;
 	obj->userdata = parent->userdata;
-	obj->lhost = parent->lhost;
+    strncpy(obj->lhost, parent->lhost, sizeof(obj->lhost));
 	obj->lport = parent->lport;
 
 	return 0;
@@ -255,7 +256,7 @@ int netsocket_connect (netsocket_t *obj) {
 
 	struct in_addr **pptr;
 	pptr = (struct in_addr **)obj->hostent->h_addr_list;
-	obj->ip = inet_ntoa(**(pptr++));
+    strncpy(obj->ip, inet_ntoa(**(pptr++)), sizeof(obj->ip));
 	obj->sock = socket(PF_INET, SOCK_STREAM, 0);
 
 	ev_io_set(&obj->w_in, obj->sock, EV_READ);
@@ -304,8 +305,8 @@ int netsocket_connect (netsocket_t *obj) {
 int netsocket_listen (netsocket_t *obj) {
 	obj->mode = NETSOCKET_SERVER;
 
-	if (obj->lhost == NULL)
-		obj->lhost = "0.0.0.0";
+	if (!strlen(obj->lhost))
+		strcpy(obj->lhost, "0.0.0.0");
 
 	if (obj->lport < 1 || obj->lport > 65535) {
 		disconnect(obj, "Invalid local port", 0);
@@ -320,7 +321,7 @@ int netsocket_listen (netsocket_t *obj) {
 
 	struct in_addr **pptr;
 	pptr = (struct in_addr **)obj->hostent->h_addr_list;
-	obj->ip = inet_ntoa(**(pptr++));
+    strncpy(obj->ip, inet_ntoa(**(pptr++)), sizeof(obj->ip));
      
 	// TODO: socket függvény hibájának csekkolása
 	obj->sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -493,4 +494,23 @@ int netsocket_printf (netsocket_t *obj, const char *fmt, ...) {
 
 	return netsocket_write(obj, tmp, strlen(tmp));
 }
+
+void netsocket_host (netsocket_t *obj, const char *host) {
+    if (host != NULL)
+        strncpy(obj->host, host, sizeof(obj->host) - 1);
+}
+
+void netsocket_lhost (netsocket_t *obj, const char *lhost) {
+    if (lhost != NULL)
+        strncpy(obj->lhost, lhost, sizeof(obj->lhost) - 1);
+}
+
+void netsocket_port (netsocket_t *obj, int port) {
+    obj->port = port;
+}
+
+void netsocket_lport (netsocket_t *obj, int lport) {
+    obj->lport = lport;
+}
+
 

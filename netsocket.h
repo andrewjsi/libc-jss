@@ -23,12 +23,12 @@
 #define NETSOCKET_EVENT_DISCONNECT		4
 
 typedef struct netsocket_t {
-	char *host;
+	char host[128];
 	int port;
-	char *lhost;
+	char lhost[128];
 	int lport;
 	int connect_timeout;
-	char *ip;
+	char ip[20];
 	int sock;
 	struct hostent *hostent;
 	struct sockaddr_in addr;
@@ -41,7 +41,7 @@ typedef struct netsocket_t {
 	void *userdata;	// user data
 	int err;
 	int event;
-	char *disconnect_reason;
+	char disconnect_reason[128];
 	int connected;
 	int mode;
 	struct netsocket_t *parent;
@@ -61,5 +61,9 @@ void netsocket_disconnect_withevent (netsocket_t *obj, char *reason);
 int netsocket_write (netsocket_t *obj, char *data, int length);
 int netsocket_printf (netsocket_t *obj, const char *fmt, ...);
 void netsocket_disable_lookup_on_accept (netsocket_t *obj);
+void netsocket_host (netsocket_t *obj, const char *host);
+void netsocket_lhost (netsocket_t *obj, const char *host);
+void netsocket_port (netsocket_t *obj, int port);
+void netsocket_lport (netsocket_t *obj, int port);
 
 #endif // #ifndef NETSOCKET_H_INCLUDED
