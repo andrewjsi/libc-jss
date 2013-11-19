@@ -33,7 +33,7 @@ struct timeval first_time = {0, 0};
 char ela[16];
 
 typedef struct el {
-	struct timeval tm;
+    struct timeval tm;
     char *line;
     struct el *prev; /* needed for a doubly-linked list only */
     struct el *next; /* needed for singly- or doubly-linked lists */
@@ -47,111 +47,111 @@ typedef struct el {
  * formátumú stringre mutat.
  */
 static struct timeval get_time (struct timeval *tv, struct tm **ptm, char *elapsed) {
-	struct timeval mytv;
-	
-	if (tv == NULL) {
-		gettimeofday(&mytv, NULL);
-	} else {
-		mytv.tv_sec = tv->tv_sec;
-		mytv.tv_usec = tv->tv_usec;
-	}
+    struct timeval mytv;
+    
+    if (tv == NULL) {
+        gettimeofday(&mytv, NULL);
+    } else {
+        mytv.tv_sec = tv->tv_sec;
+        mytv.tv_usec = tv->tv_usec;
+    }
 
-	if (tv)
-		*tv = mytv;
+    if (tv)
+        *tv = mytv;
 
-	if (ptm)
-		*ptm = localtime(&mytv.tv_sec); // thread safe?
+    if (ptm)
+        *ptm = localtime(&mytv.tv_sec); // thread safe?
 
-	if (elapsed) {
-		long int delta = ((mytv.tv_sec * 1000000) + mytv.tv_usec) - ((first_time.tv_sec * 1000000) + first_time.tv_usec);
-		snprintf(elapsed, 8, "%3.3f", (float)delta / 1000000);
-	}
+    if (elapsed) {
+        long int delta = ((mytv.tv_sec * 1000000) + mytv.tv_usec) - ((first_time.tv_sec * 1000000) + first_time.tv_usec);
+        snprintf(elapsed, 8, "%3.3f", (float)delta / 1000000);
+    }
 
-	return mytv;
+    return mytv;
 }
 
 void con_init () {
-	if (initialised)
-		return;
-	first_time = get_time(NULL, NULL, NULL);
-	initialised = 1;
-	return;
+    if (initialised)
+        return;
+    first_time = get_time(NULL, NULL, NULL);
+    initialised = 1;
+    return;
 }
 
 void con_logfile (const char *file) {
-	if (file == NULL) {
-		logfile = NULL;
-		return;
-	}
-	strncpy(logfile_buf, file, sizeof(logfile_buf));
-	logfile = logfile_buf;	
+    if (file == NULL) {
+        logfile = NULL;
+        return;
+    }
+    strncpy(logfile_buf, file, sizeof(logfile_buf));
+    logfile = logfile_buf;  
 }
 
 void con_timestamp_format (const char *format) {
-	if (format == NULL) {
-		timestamp_format = timestamp_format_default;
-		return;
-	}
-	strncpy(timestamp_format_buf, format, sizeof(timestamp_format_buf));
-	timestamp_format = timestamp_format_buf;
+    if (format == NULL) {
+        timestamp_format = timestamp_format_default;
+        return;
+    }
+    strncpy(timestamp_format_buf, format, sizeof(timestamp_format_buf));
+    timestamp_format = timestamp_format_buf;
 }
 
 // gány, memóriazabáló függvény :)
 void _con_writef (enum con_callmode cm, char *file, int line, const char *function, const char *fmt, ...) {
-	if (!initialised)
-		con_init();
+    if (!initialised)
+        con_init();
 
-	// botrányos deklarációk
-	char tmp[1024] = {0}; // ide kerül a végeredmény
-	char tmp2[1024]; // va_arg szöveges kimenete
-	char timestamp[64]; // timestamp
-	char elapsed[64]; // elapsed
+    // botrányos deklarációk
+    char tmp[1024] = {0}; // ide kerül a végeredmény
+    char tmp2[1024]; // va_arg szöveges kimenete
+    char timestamp[64]; // timestamp
+    char elapsed[64]; // elapsed
 
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(tmp2, sizeof(tmp2), fmt, ap);
-	va_end(ap);
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(tmp2, sizeof(tmp2), fmt, ap);
+    va_end(ap);
 
-	// TODO: ezt az idő lekérdezős részt külön függvénybe kell rakni!
-	struct timeval tv;
-	struct tm *ptm;
-	tv = get_time(NULL, &ptm, NULL); // idő, ami alapján a továbbiakban számolunk
-	strftime(timestamp, sizeof(timestamp), timestamp_format, ptm); // szöveges timestamp
-	get_time(&tv, &ptm, elapsed); // elapsed lekérdezése TODO: ez borzalmas, átírni!!!
+    // TODO: ezt az idő lekérdezős részt külön függvénybe kell rakni!
+    struct timeval tv;
+    struct tm *ptm;
+    tv = get_time(NULL, &ptm, NULL); // idő, ami alapján a továbbiakban számolunk
+    strftime(timestamp, sizeof(timestamp), timestamp_format, ptm); // szöveges timestamp
+    get_time(&tv, &ptm, elapsed); // elapsed lekérdezése TODO: ez borzalmas, átírni!!!
 
-	switch (cm) {
-		case CON_CALLMODE_CONFT:
-		case CON_CALLMODE_CONFTN:
-			concatf(tmp, "%s %s", timestamp, tmp2);
-			break;
+    switch (cm) {
+        case CON_CALLMODE_CONFT:
+        case CON_CALLMODE_CONFTN:
+            concatf(tmp, "%s %s", timestamp, tmp2);
+            break;
 
-		case CON_CALLMODE_CONF:
-		case CON_CALLMODE_CONFN:
-			strncpy(tmp, tmp2, sizeof(tmp) - 1);
-			break;
+        case CON_CALLMODE_CONF:
+        case CON_CALLMODE_CONFN:
+            strncpy(tmp, tmp2, sizeof(tmp) - 1);
+            break;
 
-		case CON_CALLMODE_DEBUG:
-			concatf(tmp, "%s /%s/ [%s:%d %s]: %s", timestamp, elapsed, file, line, function, tmp2);
-			break;
-	}
+        case CON_CALLMODE_DEBUG:
+            concatf(tmp, "%s /%s/ [%s:%d %s]: %s", timestamp, elapsed, file, line, function, tmp2);
+            break;
+    }
 
-	chomp(tmp);
+    chomp(tmp);
 
-	// Kiiratás
-	printf("%s", tmp);
-	if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
-		printf("\n");
-	fflush(stdout);
+    // Kiiratás
+    printf("%s", tmp);
+    if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
+        printf("\n");
+    fflush(stdout);
 
-	if (logfile) {
-		FILE *f = fopen(logfile, "a");
-		if (f != NULL) {
-			fprintf(f, "%s", tmp);
-			if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
-				fprintf(f, "\n");
-			fclose(f);
-		}
-	}
+    if (logfile) {
+        FILE *f = fopen(logfile, "a");
+        if (f != NULL) {
+            fprintf(f, "%s", tmp);
+            if (cm != CON_CALLMODE_CONFTN && cm != CON_CALLMODE_CONFN)
+                fprintf(f, "\n");
+            fclose(f);
+        }
+    }
 
 }
 

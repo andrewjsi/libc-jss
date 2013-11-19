@@ -1,16 +1,16 @@
 /*
-	conf(...)		kiírás időbélyeg nélkül, újsorral
-	confn(...)		kiírás időbélyeg nélkül, újsor nélkül
-	conft(...)		kiírás időbélyeggel, újsorral
-	conftn(...)		kiírás időbélyeggel, újsor nélkül
+    conf(...)       kiírás időbélyeg nélkül, újsorral
+    confn(...)      kiírás időbélyeg nélkül, újsor nélkül
+    conft(...)      kiírás időbélyeggel, újsorral
+    conftn(...)     kiírás időbélyeggel, újsor nélkül
 */
 
 enum con_callmode {
-	CON_CALLMODE_CONF,
-	CON_CALLMODE_CONFN,
-	CON_CALLMODE_CONFT,
-	CON_CALLMODE_CONFTN,
-	CON_CALLMODE_DEBUG,
+    CON_CALLMODE_CONF,
+    CON_CALLMODE_CONFN,
+    CON_CALLMODE_CONFT,
+    CON_CALLMODE_CONFTN,
+    CON_CALLMODE_DEBUG,
 };
 
 #ifndef LOGGER_H_LOADED

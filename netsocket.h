@@ -4,52 +4,52 @@
 #include <netdb.h>
 #include <ev.h>
 
-#define NETSOCKET_IN				1
-#define NETSOCKET_OUT				2
+#define NETSOCKET_IN                1
+#define NETSOCKET_OUT               2
 
-#define NETSOCKET_CLIENT			1
-#define NETSOCKET_SERVER			2
+#define NETSOCKET_CLIENT            1
+#define NETSOCKET_SERVER            2
 
-#define NETSOCKET_TCP				1
-#define NETSOCKET_UNIX				2
+#define NETSOCKET_TCP               1
+#define NETSOCKET_UNIX              2
 
-#define NETSOCKET_STATE_RESOLVING	1
-#define NETSOCKET_STATE_CONNECTING	2
-#define NETSOCKET_STATE_CONNECTED	3
+#define NETSOCKET_STATE_RESOLVING   1
+#define NETSOCKET_STATE_CONNECTING  2
+#define NETSOCKET_STATE_CONNECTED   3
 
-#define NETSOCKET_EVENT_ERROR			1
-#define NETSOCKET_EVENT_CONNECT			2
-#define NETSOCKET_EVENT_READ			3
-#define NETSOCKET_EVENT_DISCONNECT		4
+#define NETSOCKET_EVENT_ERROR           1
+#define NETSOCKET_EVENT_CONNECT         2
+#define NETSOCKET_EVENT_READ            3
+#define NETSOCKET_EVENT_DISCONNECT      4
 
 typedef struct netsocket_t {
-	char host[128];
-	int port;
-	char lhost[128];
-	int lport;
-	int connect_timeout;
-	char ip[20];
-	int sock;
-	struct hostent *hostent;
-	struct sockaddr_in addr;
-	char inbuf[1024];
-	int inbuf_len;
-	ev_io w_out;
-	ev_io w_in;
-	ev_timer w_connect_timeout;
-	void (*callback)(void*, int);
-	void *userdata;	// user data
-	int err;
-	int event;
-	char disconnect_reason[128];
-	int connected;
-	int mode;
-	struct netsocket_t *parent;
-	int direction;
-	int destroy_request;
-	int in_callback;
-	int disable_lookup_on_accept;
-	struct ev_loop *loop;
+    char host[128];
+    int port;
+    char lhost[128];
+    int lport;
+    int connect_timeout;
+    char ip[20];
+    int sock;
+    struct hostent *hostent;
+    struct sockaddr_in addr;
+    char inbuf[1024];
+    int inbuf_len;
+    ev_io w_out;
+    ev_io w_in;
+    ev_timer w_connect_timeout;
+    void (*callback)(void*, int);
+    void *userdata; // user data
+    int err;
+    int event;
+    char disconnect_reason[128];
+    int connected;
+    int mode;
+    struct netsocket_t *parent;
+    int direction;
+    int destroy_request;
+    int in_callback;
+    int disable_lookup_on_accept;
+    struct ev_loop *loop;
 } netsocket_t;
 
 netsocket_t *netsocket_new (void *callback, void *userdata, struct ev_loop *loop);
