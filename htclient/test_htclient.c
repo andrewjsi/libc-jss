@@ -6,47 +6,53 @@
 
 #include "htclient.h"
 #include "debug.h"
+#include "url_parser.h"
 
 void url_test () {
     htclient_t *h = htclient_new();
 
-    htclient_url(h, "http://jss.hu:3000/akarmi.jpg");
+    htclient_url(h, "http://10.42.20.14:3000/akarmi.jpg");
     htclient_dump(h);
 
     htclient_destroy(h);
 }
 
 int main (int argc, const char *argv[]) {
-    url_test(); return(0);
+    // url_test(); return(0);
 
-    htclient_t *shiva;
-    shiva = htclient_new();
-    if (shiva == NULL) {
+    htclient_t *h;
+    h = htclient_new();
+    if (h == NULL) {
         printf("out of memory\n");
         return -1;
     }
 
-    htclient_url(shiva, "http://jsi.jss.hu:3000/auth");
-    htclient_request_set(shiva,
+    htclient_url(h, "http://10.42.20.14:3000/dovecheck");
+    htclient_request_set(h,
         "GET /auth\r\n"
         "Auth-server: akarmi\r\n"
         "Auth-port: %d\r\n"
+        "\r\n"
         , 5555
     );
-    htclient_perform(shiva);
+    htclient_perform(h);
 
-    if (htclient_error(shiva)) {
-        printf("error: %s\n", htclient_error(shiva));
+htclient_dump(h);
+    if (htclient_error(h)) {
+        printf("error: %s\n", htclient_error(h));
         goto err;
     }
     
-    char *hdr = htclient_header_get(shiva, "Content-length");
+    char *hdr = htclient_header_get(h, "Auth-server");
     printf("Header vissza: %s\n", hdr);
 
-    htclient_destroy(shiva);
+    printf("len = %s\n", htclient_header_get(h, "Content-Length"));
+
+    htclient_destroy(h);
     return 0;
 
 err:
-    htclient_destroy(shiva);
+    htclient_destroy(h);
     return -1;
 }
+

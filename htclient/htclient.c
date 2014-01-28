@@ -13,6 +13,7 @@
 
 #include "htclient.h"
 #include "debug.h"
+#include "url_parser.h"
 
 /* void ERR(...)
  *
@@ -26,21 +27,17 @@
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 void htclient_dump (htclient_t *htc) {
-    #define HTCLIENT_DUMPS(s) printf("htc->%s = %s\n", #s, htc->s)
-    #define HTCLIENT_DUMPI(i) printf("htc->%s = %d\n", #i, htc->i)
-//    char host[64];
-//    char port[8];
-//    char request_data[HTCLIENT_BUFSIZ];
-//    char response_data[HTCLIENT_BUFSIZ];
-//    struct {
-//        char *name;
-//        char *value;
-//    } headers[16];
-//    int num_headers;
-//    char *header_buf;
-//    char error[128];
-    HTCLIENT_DUMPS(host);
-    HTCLIENT_DUMPS(port);
+    #define HTCLIENT_DUMPS(s) printf("%13s = %s\n", #s, htc->s)
+    #define HTCLIENT_DUMPI(i) printf("%13s = %d\n", #i, htc->i)
+    HTCLIENT_DUMPS(url.full);
+    HTCLIENT_DUMPS(url.scheme);
+    HTCLIENT_DUMPS(url.host);
+    HTCLIENT_DUMPS(url.port);
+    HTCLIENT_DUMPS(url.path);
+    HTCLIENT_DUMPS(url.query);
+    HTCLIENT_DUMPS(url.fragment);
+    HTCLIENT_DUMPS(url.username);
+    HTCLIENT_DUMPS(url.password);
     HTCLIENT_DUMPS(request_data);
     HTCLIENT_DUMPS(response_data);
     HTCLIENT_DUMPI(num_headers);
@@ -89,37 +86,48 @@ char *htclient_error (htclient_t *htc) {
 }
 
 int htclient_url (htclient_t *htc, const char *fmt, ...) {
-    char url[HTCLIENT_BUFSIZ];
-
     va_list ap;
     va_start(ap, fmt);
-    vsnprintf(url, sizeof(url), fmt, ap);
+    vsnprintf(htc->url.full, sizeof(htc->url.full), fmt, ap);
     va_end(ap);
-puts(url); return 0;
-//    char host[20];
-//    char port[20];
-//    char URL[20];
-//    int *prt;
-//    char URI[20];
-//    if ( sscanf ( http, "http://%[^:]:%[^/]/%s", host, port, URI ) == 3 ) {
-//        *prt = atoi(port);
-//        strcpy(URL,"/");
-//        strcat(URL,URI);
-//        strcpy(URI,URL);
-//    } else if ( sscanf ( http, "http://%[^:]:%[^/]/%s", host, port, URI ) == 2 ) {
-//        *prt = atoi(port);
-//        strcpy(URI,"/");
-//    } else if(sscanf( http, "http://%[^/]/%s", host, URI ) == 2 ) {
-//        *prt = 80;
-//        strcpy(URL,"/");
-//        strcat(URL,URI);
-//        strcpy(URI,URL);
-//    } else if (sscanf( http, "http://%[^/]", host ) == 1) {
-//        *prt = 80;
-//        strcpy(URI,"/");
-//    } else if (sscanf( http, "http://%[^/]", host ) == 0) {
-//        printf("Invalid URL\n");
-//    }
+
+    struct parsed_url *pu = parse_url(htc->url.full);
+    if (pu == NULL) {
+        htc->url.set = 0;
+        ERR("URL mismatch");
+    }
+
+    htc->url.url_parser_ptr = pu;
+    htc->url.scheme = pu->scheme;
+    htc->url.host = pu->host;
+    htc->url.port = pu->port;
+    htc->url.path = pu->path;
+    htc->url.query = pu->query;
+    htc->url.fragment = pu->fragment;
+    htc->url.username = pu->username;
+    htc->url.password = pu->password;
+
+    // ha nincs megadva a port, akkor a scheme-ből megállapítjuk
+    if (!htc->url.port && htc->url.scheme) {
+        if (!strcmp(htc->url.scheme, "http")) {
+            // TODO: az strdup() nem okoz memória szivárgást? Ha felszabadítjuk
+            // az url_parser-t, akkor az felszabadítja ezt is?
+            htc->url.port = strdup("80");
+        } else if (!strcmp(htc->url.scheme, "https")) {
+            htc->url.port = strdup("443");
+        }
+    }
+
+    // ha valamilyen oknál fogva ezen a ponton nincs
+    // host vagy nincs port, akkor a további
+    // grimbuszok elkerülése végett hivát dobunk:)
+    if (!htc->url.host || !htc->url.port) {
+        htc->url.set = 0;
+        ERR("URL mismatch");
+    }
+
+    htc->url.set = 1;
+    return 0;
 }
 
 int htclient_perform (htclient_t *htc) {
@@ -129,16 +137,20 @@ int htclient_perform (htclient_t *htc) {
     int sockfd;
     int rv;
 
-    port = atoi(htc->port);
+    if (!htc->url.set) {
+        ERR("URL not set or bogus");
+    }
+
+    port = atoi(htc->url.port);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         ERR("error opening socket: %s", strerror(errno));
     }
 
-    server = gethostbyname(htc->host);
+    server = gethostbyname(htc->url.host);
     if (server == NULL) {
-        ERR("host not found: %s", htc->host);
+        ERR("host not found: %s", htc->url.host);
     }
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -148,7 +160,7 @@ int htclient_perform (htclient_t *htc) {
          server->h_length);
     serv_addr.sin_port = htons(port);
     if (connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
-        ERR("can't connect to %s:%d: %s", htc->host, port, strerror(errno));
+        ERR("can't connect to %s:%d: %s", htc->url.host, port, strerror(errno));
     }
 
     rv = write(sockfd, htc->request_data, strlen(htc->request_data));
