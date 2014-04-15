@@ -67,6 +67,9 @@ static void invoke_callback (netsocket_t *obj, int event) {
 
 
 static void disconnect (netsocket_t *obj, char *reason, int ignore_callback) {
+    if (obj == NULL)
+        return;
+
     sock_close(obj);
     if (reason != NULL)
         strncpy(obj->disconnect_reason, reason, sizeof(obj->disconnect_reason) - 1);
