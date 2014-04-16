@@ -58,7 +58,7 @@ int netsocket_connect (netsocket_t *obj);
 int netsocket_listen (netsocket_t *obj);
 void netsocket_disconnect (netsocket_t *obj, char *reason);
 void netsocket_disconnect_withevent (netsocket_t *obj, char *reason);
-int netsocket_write (netsocket_t *obj, char *data, int length);
+int netsocket_write (netsocket_t *obj, const char *data, int length);
 int netsocket_printf (netsocket_t *obj, const char *fmt, ...);
 void netsocket_disable_lookup_on_accept (netsocket_t *obj);
 void netsocket_host (netsocket_t *obj, const char *host);

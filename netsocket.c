@@ -372,7 +372,7 @@ int netsocket_listen (netsocket_t *obj) {
  *
  * Write data to socket. O yeahhh:)
  */
-int netsocket_write (netsocket_t *obj, char *data, int length) {
+int netsocket_write (netsocket_t *obj, const char *data, int length) {
     int i = 0;
     if (!obj->sock) return 0; // véletlenül sem írunk az stdout-ra :)
 
