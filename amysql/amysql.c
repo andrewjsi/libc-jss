@@ -2,8 +2,6 @@
 Oracle-t is. A libzdb tudtommal nem aszinkron, viszont az amysql.c mintájára
 aszinkronná lehetne tenni:) */
 
-#define CON_DEBUG
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,14 +30,23 @@ char querybuf[QUERYBUFSIZE];     // itt tároljuk el a query-t
 char error_str[256];
 int error_num;
 
-char *server = "10.100.100.202";
-char *user = "tetrasms";
-char *password = "SokSMS";
-char *database = "tetrasms";
-int connect_timeout = 3; // TODO: prod környezetben ezeket magasra venni!
-int data_timeout = 3;   /* Each attempt uses this timeout value and there
-                        are retries if necessary, so the total effective
-                        timeout value is three times the option value. */
+struct option_t {
+    char host[64];
+    char user[64];
+    char password[64];
+    char database[64];
+    int connect_timeout;
+    int data_timeout;
+} option = {
+    .host = "localhost",
+    .user = "",
+    .password = "",
+    .database = "",
+    .connect_timeout = 3,   // TODO: prod környezetben ezeket magasra venni!
+    .data_timeout = 3,      /* Each attempt uses this timeout value and there
+                            are retries if necessary, so the total effective
+                            timeout value is three times the option value. */
+};
 
 static ev_async evasync_main;
 static ev_async evasync_thread;
@@ -49,11 +56,36 @@ static struct ev_loop *loop_thread;  // thread event loopja
 
 pthread_t thread_id;
 
-// thread: AMYSQL
+void amysql_option_host (const char *host) {
+    strncpy(option.host, host, sizeof(option.host) - 1);
+}
+
+void amysql_option_user (const char *user) {
+    strncpy(option.user, user, sizeof(option.user) - 1);
+}
+
+void amysql_option_password (const char *password) {
+    strncpy(option.password, password, sizeof(option.password) - 1);
+}
+
+void amysql_option_database (const char *database) {
+    strncpy(option.database, database, sizeof(option.database) - 1);
+}
+
+void amysql_option_connect_timeout (int connect_timeout) {
+    option.connect_timeout = connect_timeout;
+}
+
+void amysql_option_data_timeout (int data_timeout) {
+    option.data_timeout = data_timeout;
+}
+
+// thread: AMYSQL, ha amysql_query() hívás volt
+// thread: nincs definiálva, ha amysql_sync_query() hívás volt
 // Függvény a következőket csinálja:
-//  reset, init, config, connect, query, fetch, save, disconnect, free, ev_async
+//  reset, init, config, connect, query, fetch, save, disconnect, free
 static void query () {
-    con_debug("send query");
+    con_debug("send query: %s", querybuf);
     //** Buffer reset **//
     memset(fieldbuf, 0, sizeof(fieldbuf));
     memset(fieldv, 0, sizeof(fieldv));
@@ -73,12 +105,12 @@ static void query () {
     }
 
     //** Config **//
-    mysql_options(db, MYSQL_OPT_CONNECT_TIMEOUT, &connect_timeout);
-    mysql_options(db, MYSQL_OPT_READ_TIMEOUT, &data_timeout);
-    mysql_options(db, MYSQL_OPT_WRITE_TIMEOUT, &data_timeout);
+    mysql_options(db, MYSQL_OPT_CONNECT_TIMEOUT, &option.connect_timeout);
+    mysql_options(db, MYSQL_OPT_READ_TIMEOUT, &option.data_timeout);
+    mysql_options(db, MYSQL_OPT_WRITE_TIMEOUT, &option.data_timeout);
 
     //** Connect **//
-    if (!mysql_real_connect(db, server, user, password, database, 0, NULL, 0)) {
+    if (!mysql_real_connect(db, option.host, option.user, option.password, option.database, 0, NULL, 0)) {
         con_debug("Can't connect to MySQL server: %s", mysql_error(db));
         strncpy(error_str, mysql_error(db), sizeof(error_str));
         error_num = -1;
@@ -162,6 +194,11 @@ done:
     // timeout okozza. Vajon ez hogy van megoldva? SIGALRM??? Az bebaszna!
     perror("strerror()");
 
+}
+
+void query_and_evasync () {
+    query();
+
     con_debug("ev_async: AMYSQL -> MAIN");
     ev_async_send(loop_main, &evasync_main);
 }
@@ -219,7 +256,7 @@ int amysql_init (struct ev_loop *loop) {
     loop_thread = ev_loop_new(EVFLAG_AUTO);
 
     ev_async_init(&evasync_main, (void*)invoke_callback);
-    ev_async_init(&evasync_thread, (void*)query);
+    ev_async_init(&evasync_thread, (void*)query_and_evasync);
 
     /* A mostani kezdetleges thread tapasztalataim alapján, szerintem az
     ev_async watchereket itt, még a pthread_create() előtt kell indítani.
@@ -241,3 +278,22 @@ int amysql_init (struct ev_loop *loop) {
     return err;
 }
 
+int amysql_sync_query (int *parc, char **parv[], const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(querybuf, sizeof(querybuf) - 1, fmt, ap);
+    va_end(ap);
+
+    query();
+
+    if (parc)
+        *parc = fieldc;
+    if (parv)
+        *parv = fieldv;
+
+    return error_num;
+}
+
+const char *amysql_strerror () {
+    return (error_num) ? error_str : NULL;
+}

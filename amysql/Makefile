@@ -1,16 +1,19 @@
 CC = gcc
-# Wall-t visszakapcsolni!
-CFLAGS = -Wall -ggdb -I../libjsi
+CFLAGS = -Wall -ggdb -I..
+CFLAGS += -DCON_DEBUG
 
 LIBS = -lev -lm -lmysqlclient -lpthread
-OBJ=amysql.o ../libjsi/logger.o ../libjsi/misc.o
+OBJ=amysql.o ../logger.o ../misc.o
 
-all: clean compile
+all: test_amysql test_sync_amysql
 
-compile: $(OBJ) test_amysql.o
+test_amysql: test_amysql.o $(OBJ)
 	$(CC) $(CFLAGS) -o test_amysql test_amysql.o $(OBJ) $(LIBS)
 
+test_sync_amysql: test_sync_amysql.o $(OBJ)
+	$(CC) $(CFLAGS) -o test_sync_amysql test_sync_amysql.o $(OBJ) $(LIBS)
+
 clean:
-	rm -rf $(OBJ) *.o test_amysql
+	rm -f $(OBJ) *.o test_amysql test_sync_amysql
 
 
