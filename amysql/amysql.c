@@ -192,7 +192,7 @@ done:
     // TODO: strerror üzenetét hozzácsapni az errstr-hez, az err != 0
     // ha 4-es hiba (interrupted system call) jön, akkor azt a mysql_connect()
     // timeout okozza. Vajon ez hogy van megoldva? SIGALRM??? Az bebaszna!
-    perror("strerror()");
+    //perror("strerror()");
 
 }
 
