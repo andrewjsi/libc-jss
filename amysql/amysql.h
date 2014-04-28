@@ -16,18 +16,32 @@ törlődni fognak, amiket a callback függvény is kapott.*/
 
 int amysql_query (void *cb, const char *fmt, ...);
 
-// beállítások
+
+/* Konfigurációs függvények */
+
+// default: localhost
 void amysql_option_host (const char *host);
+
 void amysql_option_user (const char *user);
+
 void amysql_option_password (const char *password);
+
 void amysql_option_database (const char *database);
+
+// default: nem hívja meg a mysql_set_character_set() függvényt
+void amysql_option_charset (const char *charset);
+
+// default: 10
 void amysql_option_connect_timeout (int connect_timeout);
+
+// default: 20
 void amysql_option_data_timeout (int data_timeout);
+
 
 // visszaadja a hiba szövegét vagy NULL-t, ha nem volt hiba
 const char *amysql_strerror ();
 
-// nem-aszinkron lekérdezés. A lekérdezés ejéig az amysql_sync_query() hívás
+// nem-aszinkron lekérdezés. A lekérdezés erejéig az amysql_sync_query() hívás
 // blokkol. Az eredményt a parc és a parv-be menti el.
 int amysql_sync_query (int *parc, char **parv[], const char *fmt, ...);
 

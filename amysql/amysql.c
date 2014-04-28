@@ -35,6 +35,7 @@ struct option_t {
     char user[64];
     char password[64];
     char database[64];
+    char charset[16];
     int connect_timeout;
     int data_timeout;
 } option = {
@@ -42,8 +43,9 @@ struct option_t {
     .user = "",
     .password = "",
     .database = "",
-    .connect_timeout = 3,   // TODO: prod környezetben ezeket magasra venni!
-    .data_timeout = 3,      /* Each attempt uses this timeout value and there
+    .charset = "",          // alapértelmezetten nem piszkáljuk a charset-et
+    .connect_timeout = 10,  // TODO: prod környezetben ezeket magasra venni!
+    .data_timeout = 20,     /* Each attempt uses this timeout value and there
                             are retries if necessary, so the total effective
                             timeout value is three times the option value. */
 };
@@ -70,6 +72,10 @@ void amysql_option_password (const char *password) {
 
 void amysql_option_database (const char *database) {
     strncpy(option.database, database, sizeof(option.database) - 1);
+}
+
+void amysql_option_charset (const char *charset) {
+    strncpy(option.charset, charset, sizeof(option.charset) - 1);
 }
 
 void amysql_option_connect_timeout (int connect_timeout) {
@@ -115,6 +121,14 @@ static void query () {
         strncpy(error_str, mysql_error(db), sizeof(error_str));
         error_num = -1;
         goto done;
+    }
+
+    if (option.charset && strlen(option.charset)) {
+        if (mysql_set_character_set(db, option.charset)) {
+            strncpy(error_str, mysql_error(db), sizeof(error_str));
+            error_num = -1;
+            goto done;
+        }
     }
 
     //** Query **//

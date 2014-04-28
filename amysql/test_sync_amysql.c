@@ -10,6 +10,7 @@ int main (int argc, char *argv[]) {
     amysql_option_user ("proba");
     amysql_option_password ("proba");
     amysql_option_database ("proba");
+    amysql_option_charset ("utf8");
 
     // if (amysql_sync_query(NULL, NULL, "INSERT INTO proba (name, comment) VALUES ('%s', '%s')", "egy", "kettő")) {
         // printf("ERROR: %s\n", amysql_strerror());
