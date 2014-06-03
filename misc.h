@@ -22,3 +22,7 @@ char **split (char *buffer, int delimeter);
 // 1-et ad vissza, ha érvényes a kapott IP cím
 // 0-át ha nem
 int is_valid_ip (const char *ip);
+
+// mint Perl-ben:)
+void die (const char *fmt, ...);
+
