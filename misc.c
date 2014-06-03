@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>  // inet_pton() függvény
+#include <stdarg.h>
 
 #include "debug.h"
 
@@ -207,4 +208,12 @@ int is_valid_ip (const char *ip) {
     struct sockaddr_in sa;
     int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
     return result != 0;
+}
+
+void die (const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    exit(-1);
 }
