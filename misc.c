@@ -203,7 +203,7 @@ char **split (char *buffer, int delimeter) {
 
 // 1-et ad vissza, ha érvényes a kapott IP cím
 // 0-át ha nem
-int is_valid_ip (char *ip) {
+int is_valid_ip (const char *ip) {
     struct sockaddr_in sa;
     int result = inet_pton(AF_INET, ip, &(sa.sin_addr));
     return result != 0;
