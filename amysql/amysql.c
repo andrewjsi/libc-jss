@@ -1,3 +1,11 @@
+/* amysql.c
+ * Copyright © 2014, Andras Jeszenszky, JSS & Hayer IT - http://www.jsshayer.hu
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU General Public License Version 2. See the LICENSE file
+ * at the top of the source tree.
+ */
+
 /* TODO: megvizsgálni a libzdb-t, mert ismeri a MySQL-t, PostgreSQL-t és az
 Oracle-t is. A libzdb tudtommal nem aszinkron, viszont az amysql.c mintájára
 aszinkronná lehetne tenni:) */

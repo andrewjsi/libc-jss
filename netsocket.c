@@ -1,12 +1,14 @@
-// 2012-04-03: SIGPIPE crash javitva
+/* netsocket.c
+ * Copyright © 2014, Andras Jeszenszky, JSS & Hayer IT - http://www.jsshayer.hu
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU General Public License Version 2. See the LICENSE file
+ * at the top of the source tree.
+ */
 
 // TODO: datapipe-nál jól látható, hogy a connect előtt bejött adatok
 // nem kerülnek kiküldésre. Valami buffer megoldást kéne alkalmazni. vagy mégsem?
 // ... végülis a Centauri nézőpontja szerint connect előtt miért küldenénk adatokat?
-
-// TODO: const char* problem
-// Ha a főprogramban van egy ilyen: netsocket->host = host és a host az egy
-// const char, akkor a fordító warningot dob.
 
 // TODO: gethostbyaddr és gethostbyname függvényeket lecserélni getaddrinfo és
 // getnameinfo függvényekre
