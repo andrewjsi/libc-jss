@@ -225,3 +225,22 @@ void die (const char *fmt, ...) {
     va_end(ap);
     exit(-1);
 }
+
+void read_lines_from_stdin (char *dst, int size) {
+    char *line = NULL;  // ideiglenes buffer a getline-nak
+    size_t len = 0;
+    ssize_t read;
+    int remaining_size; // dst stringbe még ennyi byte fér el
+
+    remaining_size = size - 1;
+
+    while ((read = getline(&line, &len, stdin)) != -1) {
+        strncat(dst, line, remaining_size);
+        remaining_size -= read;
+        if (remaining_size <= 0)
+            break;
+    }
+    chomp(dst); // utolsó \n karakter chompolása
+    free(line);
+}
+

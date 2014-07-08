@@ -8,6 +8,8 @@
 
 char *chomp (char *str);
 
+#define scpy(dst, src) strncpy((dst), (src), (sizeof(dst)) - 1)
+
 #define concat(dst, src) strncat((dst), (src), ((sizeof(dst)) - strlen(dst) - 1))
 #define concatf(dst, ...) snprintf((dst) + strlen((dst)), sizeof((dst)) - strlen((dst)), __VA_ARGS__)
 int fmtsub (char *dest, size_t size, const char *pattern, const char *args[][2]);
@@ -33,3 +35,7 @@ int is_valid_ip (const char *ip);
 // mint Perl-ben:)
 void die (const char *fmt, ...);
 
+// STDIN-ről beolvasás EOF-ig. A sorokat összefűzi és a dst stringbe menti,
+// vigyázva a lezáró NULL karakterre és a dst string hosszára, amit a size-ben
+// kell átadni. Az utolsó \n karakterek le lesznek csípve.
+void read_lines_from_stdin (char *dst, int size);
