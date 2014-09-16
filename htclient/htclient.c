@@ -156,6 +156,7 @@ int htclient_perform (htclient_t *htc) {
 
     server = gethostbyname(htc->url.host);
     if (server == NULL) {
+        close(sockfd);
         ERR("host not found: %s", htc->url.host);
     }
 
@@ -166,17 +167,20 @@ int htclient_perform (htclient_t *htc) {
          server->h_length);
     serv_addr.sin_port = htons(port);
     if (connect(sockfd, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0) {
+        close(sockfd);
         ERR("can't connect to %s:%d: %s", htc->url.host, port, strerror(errno));
     }
 
     rv = write(sockfd, htc->request_data, strlen(htc->request_data));
     if (rv < 0) {
+        close(sockfd);
         ERR("ERROR writing to socket");
     }
 
     memset(htc->response_data, 0, sizeof(htc->response_data));
     rv = read(sockfd, htc->response_data, sizeof(htc->response_data) - 1);
     if (rv < 0) {
+        close(sockfd);
         ERR("ERROR reading from socket");
     }
 
@@ -184,6 +188,7 @@ int htclient_perform (htclient_t *htc) {
     char *buf = htc->header_buf;
 
     parse_http_headers(&buf, htc);
+    close(sockfd);
 
     return 0;
 }
