@@ -106,7 +106,7 @@ tracer_t *tracer_new (const char *directory) {
     snprintf(tra->seqpath, sizeof(tra->seqpath), "%s/.seq", tra->path);
 
     // default értékek
-    tra->start_id = 1000; // ezt írja felül a tracer_set_start_id()
+    tra->start_id = TRACER_DEFAULT_START_ID; // ezt írja felül a tracer_set_start_id()
 
     return tra;
 }
