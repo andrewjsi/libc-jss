@@ -56,6 +56,7 @@
 
 typedef struct tracer_t {
     unsigned long long id;
+    char id_as_string[32];
     unsigned long long start_id;
     FILE *file;
     char path[PATH_MAX]; // realpath() függvény ide rakja az abszolút elérési utat
@@ -97,6 +98,13 @@ void tracer_destroy (tracer_t *tra);
 // fájl. Az alapértelmezett érték TRACER_DEFAULT_START_ID.
 void tracer_set_start_id (tracer_t *tra, int start_id);
 
-// Visszaadja az éppen használt vagy a legutoljára használt fájl sorszámát.
+// Visszaadja az éppen használt fájl sorszámát. Ha a hívás pillanatában nincs
+// nyitva fájl, tehát nem egy tracer_open() és egy tracer_close() között
+// vagyunk, akkor a visszatérési érték "0".
 unsigned long long tracer_get_id (tracer_t *tra);
+
+// String-ként adja vissza az éppen használt fájl sorszámát. Ha a hívás
+// pillanatában nincs nyitva fájl, tehát nem egy tracer_open() és egy
+// tracer_close() között vagyunk, akkor a visszatérési érték "0".
+char *tracer_get_id_as_string (tracer_t *tra);
 

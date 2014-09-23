@@ -137,7 +137,9 @@ unsigned long long tracer_close (tracer_t *tra) {
 
     fclose(tra->file);
     tra->file = NULL;
-    return tra->id;
+    unsigned long long tmp = tra->id;
+    tra->id = 0;
+    return tmp;
 }
 
 void tracer_printf (tracer_t *tra, const char *fmt, ...) {
@@ -160,10 +162,24 @@ void tracer_destroy (tracer_t *tra) {
 }
 
 void tracer_set_start_id (tracer_t *tra, int start_id) {
+    if (tra == NULL)
+        return;
+
     tra->start_id = start_id;
 }
 
 unsigned long long tracer_get_id (tracer_t *tra) {
+    if (tra == NULL)
+        return 0;
+
     return tra->id;
+}
+
+char *tracer_get_id_as_string (tracer_t *tra) {
+    if (tra == NULL)
+        return 0;
+
+    snprintf(tra->id_as_string, sizeof(tra->id_as_string), "%llu", tra->id);
+    return tra->id_as_string;
 }
 
