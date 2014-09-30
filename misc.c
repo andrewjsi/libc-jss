@@ -244,3 +244,17 @@ void read_lines_from_stdin (char *dst, int size) {
     free(line);
 }
 
+char *strcutpbrk (char *str, const char *accept) {
+    if (str == NULL)
+        return NULL;
+
+    if (accept == NULL)
+        return str;
+
+    char *at = strpbrk(str, accept);
+    if (at != NULL)
+        *at = '\0';
+
+    return str;
+}
+

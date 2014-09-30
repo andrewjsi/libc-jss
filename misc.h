@@ -20,8 +20,16 @@ char *_trim (char *s, int trim_from_left, int trim_from_right);
 #define ltrim(s) _trim(s, 1, 0)
 #define rtrim(s) _trim(s, 0, 1)
 
+// Az str stringet levágja ott, ahol az accept stringben felsorolt első
+// karakterrel találkozik. A levágást úgy oldja meg, hogy az str string
+// megfelelő byte-ját átírja 0-ra. A visszatérési érték az str string. Ha az
+// accept == NULL, akkor nem piszkálja az str stringet. Ha az str == NULL,
+// akkor a visszatérési érték NULL. Például ha az str "Bandi" és az accept
+// "cde", akkor az eredmény "Ban" lesz.
+char *strcutpbrk (char *str, const char *accept);
+
 // Nincs még doksi, ezért ide írom...
-// A chomp, trim, encode_rot13 függvények használhatok beágyazva is, tehát:
+// A chomp, trim, encode_rot13, strcutpbrk függvények használhatok beágyazva is, tehát:
 // char buf[64];
 // encode_rot13(trim(chomp(buf)));
 
