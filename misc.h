@@ -47,3 +47,12 @@ void die (const char *fmt, ...);
 // vigyázva a lezáró NULL karakterre és a dst string hosszára, amit a size-ben
 // kell átadni. Az utolsó \n karakterek le lesznek csípve.
 void read_lines_from_stdin (char *dst, int size);
+
+// Az str stringből eltávolítja a dels stringben megtalálható karaktereket. Az
+// eltávolítás folyamán az str stringben a byteokat fokozatosan balra rendezi.
+// A művelet végén elhelyezi a stringet lezáró NULL karaktert. Az eredmény
+// ugyan akkora vagy kisebb méretű string. A visszatérési érték az str string.
+// Ha az str NULL, akkor a visszatérési érték NULL. Ha a dels NULL, akkor a
+// visszatérési érték az str string.
+char *strdelchars (char *str, const char *dels);
+
