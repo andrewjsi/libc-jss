@@ -271,7 +271,7 @@ char *strdelchars (char *str, const char *dels) {
     if (!len_str || !len_dels)
         return str;
 
-    int i, j, k;
+    int i, j, k = 0;
     for (i = 0; i < len_str; i++) {
         for (j = 0; j < len_dels; j++)
             if (str[i] == dels[j])
