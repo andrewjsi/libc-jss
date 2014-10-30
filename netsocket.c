@@ -518,4 +518,7 @@ void netsocket_lport (netsocket_t *obj, int lport) {
     obj->lport = lport;
 }
 
+int netsocket_is_connected (netsocket_t *obj) {
+    return obj->connected;
+}
 

@@ -73,5 +73,6 @@ void netsocket_host (netsocket_t *obj, const char *host);
 void netsocket_lhost (netsocket_t *obj, const char *host);
 void netsocket_port (netsocket_t *obj, int port);
 void netsocket_lport (netsocket_t *obj, int port);
+int netsocket_is_connected (netsocket_t *obj);
 
 #endif // #ifndef NETSOCKET_H_INCLUDED
