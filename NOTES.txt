@@ -13,3 +13,9 @@ netsocket.c -ben a libev örjöng:
 A megoldás egyelőre az, hogy -fno-strict-aliasing CFLAGS-et használjuk.
 
 
+SSL
+===
+
+Remek SSL library:
+https://github.com/awslabs/s2n
+
